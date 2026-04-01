@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+// 定义包名，避免命名冲突
+package pet;
+
+// 【极其关键】告诉编译器，一会儿生成的 Go 代码放到网关的哪个相对目录下
+option go_package = "../go-gateway/pb";
+
+// ==========================================
+// 核心服务定义 (Service)
+// 这就是腾讯 JD 里要求的“高并发 RPC 服务的设计”
+// ==========================================
+service PetChatService {
+  // 1. 基础调用 (Unary RPC)：一问一答，适合极速拉取数据
+  // 场景：前端每隔 10 秒偷偷问一下后端“桌宠现在饿不饿？”
+  rpc GetStatus(StatusRequest) returns (StatusResponse);
+
+  // 2. 流式调用 (Server Streaming RPC)：大模型场景的灵魂！
+  // 场景：用户输入复杂问题，AI Agent 思考并逐字返回结果，注意这里的 stream 关键字
+  rpc AskPetStream(ChatRequest) returns (stream ChatResponse);
+}
+
+// ==========================================
+// 数据结构定义 (Messages)
+// 相当于写接口文档 (Spec-Driven Development 的第一步)
+// 注意：等号后面的 1, 2 不是赋值，是二进制序列化时的“位置编号”
+// ==========================================
+
+message StatusRequest {
+  string pet_id = 1;
+}
+
+message StatusResponse {
+  string status = 1; // 桌宠当前状态，比如 "idle", "thinking", "sleeping"
+  int32 mood_score = 2; // 心情值：0-100
+}
+
+message ChatRequest {
+  string user_id = 1; // 用户标识，后续用来去 Redis 里查历史记忆
+  string message = 2; // 用户对桌宠说的话
+}
+
+message ChatResponse {
+  string text_chunk = 1; // 大模型吐出的单个词 (Token)
+  string agent_state = 2; // AI Agent 当前的状态 (例如："正在调用天气工具...", "正在反思...")
+  bool is_finish = 3; // 是否回答完毕
+}
