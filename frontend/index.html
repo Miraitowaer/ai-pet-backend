@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Desktop Pet - Premium Auth</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <!-- 顶部拖拽支持 -->
+    <div id="drag-bar"></div>
+    
+    <!-- 第一幕：神经突触通行证大厅 -->
+    <div id="auth-screen">
+      <h2 style="color: white;text-shadow: 0 0 10px rgba(138,43,226,0.8);">- 神经交互通行证 -</h2>
+      
+      <!-- 登录/注册 Tabs 切换 -->
+      <div class="auth-tabs">
+        <button id="tab-login" class="tab-btn active">唤醒记忆 (登录)</button>
+        <button id="tab-register" class="tab-btn">新生召唤 (注册)</button>
+      </div>
+
+      <!-- 统一的账号密码输入区 -->
+      <input type="text" id="account-input" class="auth-box" placeholder="输入星际账号" autocomplete="off">
+      <input type="password" id="password-input" class="auth-box" placeholder="输入加密凭证" autocomplete="off">
+
+      <!-- 仅限注册模式显示的拓展面板 -->
+      <div id="register-expansion" style="display: none; width: 100%; text-align: center;">
+        <input type="text" id="petname-input" class="auth-box" placeholder="限定唯一桌宠名" autocomplete="off">
+        <p style="color:#aaa;margin-top:10px;margin-bottom:10px;font-size:12px;">挑选躯壳：</p>
+        <div class="avatar-select">
+          <img src="/cyber_boy.png" data-avatar="boy" class="avatar-option selected" title="赛博少年">
+          <img src="/cyber_girl.png" data-avatar="girl" class="avatar-option" title="狂热猫娘">
+          <img src="/cute_cyber_pet.png" data-avatar="pig" class="avatar-option" title="吉祥物小猪">
+        </div>
+      </div>
+
+      <div id="auth-msg"></div>
+      <button id="action-btn">建立连接</button>
+    </div>
+
+    <!-- 第二幕：桌面实体主会场 -->
+    <div id="app" style="display: none;"></div>
+    
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

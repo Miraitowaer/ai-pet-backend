@@ -1,0 +1,234 @@
+/* ================================
+   玻璃拟态终极渲染 (Glassmorphism) + 状态机扩展
+   ================================ */
+   body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: transparent !important;
+    font-family: 'Inter', sans-serif;
+}
+
+#drag-bar {
+    -webkit-app-region: drag;
+    width: 100vw;
+    height: 30px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+}
+
+input, button, .avatar-option {
+    -webkit-app-region: no-drag;
+}
+
+/* ---------------------------------
+   第一幕：通行证大厅统一样式
+   --------------------------------- */
+#auth-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(20, 20, 30, 0.85);
+    backdrop-filter: blur(25px);
+    border-radius: 15px; 
+    box-sizing: border-box;
+    padding: 20px;
+    -webkit-app-region: drag; 
+}
+
+.auth-tabs {
+    display: flex;
+    width: 250px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 20px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    color: #aaa;
+    border: none;
+    padding: 8px 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 13px;
+}
+
+.tab-btn.active {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    font-weight: bold;
+}
+
+.auth-box {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 10px;
+    color: white;
+    width: 230px;
+    text-align: center;
+    outline: none;
+    font-size: 14px;
+    margin-bottom: 10px;
+    transition: 0.3s;
+}
+
+.auth-box:focus {
+    border-color: #8a2be2;
+    box-shadow: 0 0 10px rgba(138,43,226,0.3);
+}
+
+.avatar-select {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.avatar-option {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+    object-fit: cover;
+    background: rgba(255,255,255,0.1);
+}
+
+.avatar-option:hover { opacity: 0.8; }
+.avatar-option.selected {
+    opacity: 1;
+    border-color: #00ffcc;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+    transform: scale(1.1);
+}
+
+#action-btn {
+    background: linear-gradient(45deg, #8a2be2, #00ffcc);
+    border: none;
+    padding: 10px 40px;
+    color: black;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+    margin-top: 10px;
+}
+
+#action-btn:active { transform: scale(0.95); }
+
+#auth-msg {
+    margin-top: 5px;
+    font-size: 13px;
+    font-weight: bold;
+    min-height: 20px;
+}
+
+/* ---------------------------------
+   第二幕：主界面的原有悬浮样式
+   --------------------------------- */
+#app {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100vw;
+    height: 100vh;
+    padding-bottom: 30px;
+    box-sizing: border-box;
+    -webkit-app-region: drag; 
+}
+
+#chat-bubble {
+    background: rgba(40, 42, 54, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4);
+    border-radius: 24px;
+    padding: 16px 24px;
+    color: #f8f8f2;
+    max-width: 85%;
+    max-height: 40vh;         /* [修复长文本] 限制气泡最高高度不超过屏幕 40% */
+    overflow-y: auto;         /* [修复长文本] 内容过多时可内部滚动 */
+    margin-bottom: 15px;
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    word-wrap: break-word;
+    -webkit-app-region: no-drag; 
+}
+
+/* 隐形高颜值滚动条 */
+#chat-bubble::-webkit-scrollbar {
+    width: 6px;
+}
+#chat-bubble::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+}
+
+#chat-bubble.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#pet-container {
+    width: 250px;
+    height: 250px;
+    animation: float 4s ease-in-out infinite; 
+    filter: drop-shadow(0 15px 25px rgba(123, 104, 238, 0.4));
+}
+
+#pet-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#input-box {
+    margin-top: 15px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 30px;
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    outline: none;
+    width: 260px;
+    transition: all 0.3s ease;
+    text-align: center;
+    -webkit-app-region: no-drag; 
+}
+
+#input-box:focus {
+    background: rgba(40, 42, 54, 0.9);
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+    border-color: rgba(138, 43, 226, 0.8);
+    width: 300px; 
+}
+
+#input-box::placeholder {
+    color: rgba(255,255,255,0.4);
+}
+
+@keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-18px) rotate(1deg); } 
+    100% { transform: translateY(0px) rotate(0deg); }
+}
